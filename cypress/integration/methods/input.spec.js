@@ -132,6 +132,36 @@ describe('Input', () => {
     Swal.clickConfirm()
   })
 
+  it('input select with inputOptions as Promise', (done) => {
+    Swal.fire({
+      input: 'select',
+      inputOptions: Promise.resolve({ one: 1, two: 2 }),
+      didOpen: () => {
+        setTimeout(() => {
+          Swal.getInput().value = 'one'
+          expect(Swal.getInput().value).to.equal('one')
+          done()
+        }, TIMEOUT)
+      }
+    })
+  })
+
+  it('input select with inputOptions as object containing toPromise', (done) => {
+    Swal.fire({
+      input: 'select',
+      inputOptions: {
+        toPromise: () => Promise.resolve({ three: 3, four: 4 })
+      },
+      didOpen: () => {
+        setTimeout(() => {
+          Swal.getInput().value = 'three'
+          expect(Swal.getInput().value).to.equal('three')
+          done()
+        }, TIMEOUT)
+      }
+    })
+  })
+
   it('input text w/ inputPlaceholder as configuration', () => {
     Swal.fire({
       input: 'text',
@@ -347,6 +377,9 @@ describe('Validation', () => {
     Swal.getInput().value = 'blah-blah'
     Swal.clickConfirm()
     setTimeout(() => {
+      expect(Swal.getConfirmButton().disabled).to.be.false
+      expect(Swal.getDenyButton().disabled).to.be.false
+      expect(Swal.getCancelButton().disabled).to.be.false
       expect(isVisible(Swal.getValidationMessage())).to.be.true
       expect(Swal.getValidationMessage().textContent).to.equal('Invalid phone number')
       Swal.getInput().value = '123-456-7890'
@@ -385,8 +418,32 @@ describe('Validation', () => {
     }, TIMEOUT)
   })
 
+  it('validation message with object containing toPromise', (done) => {
+    SwalWithoutAnimation.fire({
+      input: 'text',
+      inputValidator: (value) => ({
+        toPromise: () => Promise.resolve(!value && 'no falsy values')
+      })
+    })
+
+    setTimeout(() => {
+      Swal.clickConfirm()
+      setTimeout(() => {
+        expect(isVisible(Swal.getValidationMessage())).to.be.true
+        expect(Swal.getValidationMessage().textContent).to.equal('no falsy values')
+        done()
+      }, TIMEOUT)
+    }, TIMEOUT)
+  })
+
   it('default URL validator: https://google.com', (done) => {
     defaultInputValidators.url('https://google.com').then(() => {
+      done()
+    })
+  })
+
+  it('default URL validator: http://g.co', (done) => {
+    defaultInputValidators.url('http://g.co').then(() => {
       done()
     })
   })

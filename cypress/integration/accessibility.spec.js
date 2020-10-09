@@ -73,7 +73,7 @@ describe('Accessibility:', () => {
     document.body.appendChild(divAriaHiddenTrue)
     SwalWithoutAnimation.fire({
       toast: true,
-      onAfterClose: () => {
+      didClose: () => {
         expect(divAriaHiddenTrue.getAttribute('aria-hidden')).to.equal('true')
         done()
       }
@@ -101,12 +101,15 @@ describe('should trap focus in modals', () => {
   it('focus trap forward', (done) => {
     Swal.fire({
       input: 'text',
+      showDenyButton: true,
       showCancelButton: true,
       showCloseButton: true,
-      onOpen: () => {
+      didOpen: () => {
         expect(document.activeElement).to.equal(Swal.getInput())
         triggerKeydownEvent(document.activeElement, 'Tab')
         expect(document.activeElement).to.equal(Swal.getConfirmButton())
+        triggerKeydownEvent(document.activeElement, 'Tab')
+        expect(document.activeElement).to.equal(Swal.getDenyButton())
         triggerKeydownEvent(document.activeElement, 'Tab')
         expect(document.activeElement).to.equal(Swal.getCancelButton())
         triggerKeydownEvent(document.activeElement, 'Tab')
@@ -121,14 +124,17 @@ describe('should trap focus in modals', () => {
   it('focus trap backward', (done) => {
     Swal.fire({
       input: 'text',
+      showDenyButton: true,
       showCancelButton: true,
       showCloseButton: true,
-      onOpen: () => {
+      didOpen: () => {
         expect(document.activeElement).to.equal(Swal.getInput())
         triggerKeydownEvent(document.activeElement, 'Tab', { shiftKey: true })
         expect(document.activeElement).to.equal(Swal.getCloseButton())
         triggerKeydownEvent(document.activeElement, 'Tab', { shiftKey: true })
         expect(document.activeElement).to.equal(Swal.getCancelButton())
+        triggerKeydownEvent(document.activeElement, 'Tab', { shiftKey: true })
+        expect(document.activeElement).to.equal(Swal.getDenyButton())
         triggerKeydownEvent(document.activeElement, 'Tab', { shiftKey: true })
         expect(document.activeElement).to.equal(Swal.getConfirmButton())
         triggerKeydownEvent(document.activeElement, 'Tab', { shiftKey: true })
@@ -140,10 +146,15 @@ describe('should trap focus in modals', () => {
 
   it('arrow keys', (done) => {
     Swal.fire({
+      showDenyButton: true,
       showCancelButton: true,
-      onOpen: () => {
+      didOpen: () => {
+        triggerKeydownEvent(document.activeElement, 'ArrowRight')
+        expect(document.activeElement).to.equal(Swal.getDenyButton())
         triggerKeydownEvent(document.activeElement, 'ArrowRight')
         expect(document.activeElement).to.equal(Swal.getCancelButton())
+        triggerKeydownEvent(document.activeElement, 'ArrowLeft')
+        expect(document.activeElement).to.equal(Swal.getDenyButton())
         triggerKeydownEvent(document.activeElement, 'ArrowLeft')
         expect(document.activeElement).to.equal(Swal.getConfirmButton())
         done()
@@ -169,7 +180,7 @@ describe('Focus', () => {
     SwalWithoutAnimation.fire({
       text: 'Modal with an input',
       input: 'text',
-      onOpen: () => {
+      didOpen: () => {
         expect(document.activeElement).to.equal(document.querySelector('.swal2-input'))
         done()
       }
@@ -199,5 +210,14 @@ describe('Focus', () => {
       focusCancel: true
     })
     expect(document.activeElement).to.equal(Swal.getCancelButton())
+  })
+
+  it('focusDeny', () => {
+    Swal.fire({
+      text: 'Modal with Deny button focused',
+      showDenyButton: true,
+      focusDeny: true
+    })
+    expect(document.activeElement).to.equal(Swal.getDenyButton())
   })
 })

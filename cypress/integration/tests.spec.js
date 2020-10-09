@@ -1,5 +1,6 @@
 import jQuery from 'jquery'
 import Swal from '../../src/sweetalert2'
+import { SHOW_CLASS_TIMEOUT } from '../../src/utils/openPopup'
 import { $, isHidden, isVisible, SwalWithoutAnimation, triggerKeydownEvent, TIMEOUT, dispatchCustomEvent, ensureClosed } from '../utils'
 
 describe('Miscellaneous tests', function () {
@@ -56,6 +57,7 @@ describe('Miscellaneous tests', function () {
   it('should show the popup with OK button in case of empty object passed as an argument', () => {
     Swal.fire({})
     expect(isVisible(Swal.getConfirmButton())).to.be.true
+    expect(isHidden(Swal.getDenyButton())).to.be.true
     expect(isHidden(Swal.getCancelButton())).to.be.true
     expect(Swal.getTitle().textContent).to.equal('')
     expect(Swal.getContent().textContent).to.equal('')
@@ -97,18 +99,23 @@ describe('Miscellaneous tests', function () {
 
     Swal.fire({
       showCancelButton: true,
+      showDenyButton: true,
       imageUrl: '/assets/swal2-logo.png',
       confirmButtonText: 'Confirm button',
       confirmButtonAriaLabel: 'Confirm button aria-label',
+      denyButtonText: 'Deny button',
+      denyButtonAriaLabel: 'Deny button aria-label',
       cancelButtonText: 'Cancel button',
       cancelButtonAriaLabel: 'Cancel button aria-label',
       footer: '<b>Footer</b>'
     })
     expect(Swal.getImage().src.includes('/assets/swal2-logo.png')).to.be.true
-    expect(Swal.getActions().textContent).to.equal('Confirm buttonCancel button')
+    expect(Swal.getActions().textContent).to.equal('Confirm buttonDeny buttonCancel button')
     expect(Swal.getConfirmButton().innerText).to.equal('Confirm button')
+    expect(Swal.getDenyButton().innerText).to.equal('Deny button')
     expect(Swal.getCancelButton().innerText).to.equal('Cancel button')
     expect(Swal.getConfirmButton().getAttribute('aria-label')).to.equal('Confirm button aria-label')
+    expect(Swal.getDenyButton().getAttribute('aria-label')).to.equal('Deny button aria-label')
     expect(Swal.getCancelButton().getAttribute('aria-label')).to.equal('Cancel button aria-label')
     expect(Swal.getFooter().innerHTML).to.equal('<b>Footer</b>')
 
@@ -164,10 +171,12 @@ describe('Miscellaneous tests', function () {
 
     Swal.disableButtons()
     expect(Swal.getConfirmButton().disabled).to.be.true
+    expect(Swal.getDenyButton().disabled).to.be.true
     expect(Swal.getCancelButton().disabled).to.be.true
 
     Swal.enableButtons()
     expect(Swal.getConfirmButton().disabled).to.be.false
+    expect(Swal.getDenyButton().disabled).to.be.false
     expect(Swal.getCancelButton().disabled).to.be.false
   })
 
@@ -175,12 +184,15 @@ describe('Miscellaneous tests', function () {
     Swal.fire({
       text: 'Modal with reversed buttons',
       showCancelButton: true,
+      showDenyButton: true,
       reverseButtons: true
     })
-    expect(Swal.getConfirmButton().previousSibling).to.equal(Swal.getCancelButton())
+    expect(Swal.getConfirmButton().previousSibling).to.equal(Swal.getDenyButton())
+    expect(Swal.getDenyButton().previousSibling).to.equal(Swal.getCancelButton())
 
     Swal.fire('Modal with buttons')
-    expect(Swal.getCancelButton().previousSibling).to.equal(Swal.getConfirmButton())
+    expect(Swal.getDenyButton().previousSibling).to.equal(Swal.getConfirmButton())
+    expect(Swal.getCancelButton().previousSibling).to.equal(Swal.getDenyButton())
   })
 
   it('modal vertical offset', (done) => {
@@ -203,74 +215,74 @@ describe('Miscellaneous tests', function () {
     })
   })
 
-  it('onOpen', (done) => {
-    // create a modal with an onOpen callback
+  it('didOpen', (done) => {
+    // create a modal with an didOpen callback
     Swal.fire({
-      title: 'onOpen test',
-      onOpen: (modal) => {
+      title: 'didOpen test',
+      didOpen: (modal) => {
         expect(Swal.getPopup()).to.equal(modal)
         done()
       }
     })
   })
 
-  it('onBeforeOpen', (done) => {
-    // create a modal with an onBeforeOpen callback
+  it('willOpen', (done) => {
+    // create a modal with an willOpen callback
     Swal.fire({
-      title: 'onBeforeOpen test',
-      onBeforeOpen: (modal) => {
+      title: 'willOpen test',
+      willOpen: (modal) => {
         expect(Swal.isVisible()).to.be.false
         expect(Swal.getPopup()).to.equal(modal)
       }
     })
 
-    // check that onBeforeOpen calls properly
-    const dynamicTitle = 'Set onBeforeOpen title'
+    // check that willOpen calls properly
+    const dynamicTitle = 'Set willOpen title'
     Swal.fire({
-      title: 'onBeforeOpen test',
-      onBeforeOpen: () => {
+      title: 'willOpen test',
+      willOpen: () => {
         Swal.getTitle().innerHTML = dynamicTitle
       },
-      onOpen: () => {
+      didOpen: () => {
         expect(Swal.getTitle().innerHTML).to.equal(dynamicTitle)
         done()
       }
     })
   })
 
-  it('onRender', () => {
-    const onRender = cy.spy()
+  it('didRender', () => {
+    const didRender = cy.spy()
 
-    // create a modal with an onRender callback
-    // the onRender hook should be called once here
+    // create a modal with an didRender callback
+    // the didRender hook should be called once here
     Swal.fire({
-      title: 'onRender test',
-      onRender
+      title: 'didRender test',
+      didRender
     })
 
-    expect(onRender.calledOnce).to.be.true
+    expect(didRender.calledOnce).to.be.true
 
     // update the modal, causing a new render
-    // the onRender hook should be called once again
+    // the didRender hook should be called once again
     Swal.update({})
 
-    expect(onRender.calledTwice).to.be.true
+    expect(didRender.calledTwice).to.be.true
 
-    // the modal element must always be passed to the onRender hook
-    expect(onRender.alwaysCalledWithExactly(Swal.getPopup())).to.be.true
+    // the modal element must always be passed to the didRender hook
+    expect(didRender.alwaysCalledWithExactly(Swal.getPopup())).to.be.true
   })
 
-  it('onAfterClose', (done) => {
-    let onCloseFinished = false
+  it('didClose', (done) => {
+    let willCloseFinished = false
 
-    // create a modal with an onAfterClose callback
+    // create a modal with an didClose callback
     Swal.fire({
-      title: 'onAfterClose test',
-      onClose: () => {
-        onCloseFinished = true
+      title: 'didClose test',
+      willClose: () => {
+        willCloseFinished = true
       },
-      onAfterClose: () => {
-        expect(onCloseFinished).to.be.true
+      didClose: () => {
+        expect(willCloseFinished).to.be.true
         expect(Swal.getContainer()).to.be.null
         done()
       }
@@ -279,17 +291,17 @@ describe('Miscellaneous tests', function () {
     Swal.getCloseButton().click()
   })
 
-  it('onDestroy', (done) => {
+  it('didDestroy', (done) => {
     let firstPopupDestroyed = false
     Swal.fire({
       title: '1',
-      onDestroy: () => {
+      didDestroy: () => {
         firstPopupDestroyed = true
       }
     })
     Swal.fire({
       title: '2',
-      onDestroy: () => {
+      didDestroy: () => {
         done()
       }
     })
@@ -297,11 +309,11 @@ describe('Miscellaneous tests', function () {
     Swal.getConfirmButton().click()
   })
 
-  it('onClose', (done) => {
-    // create a modal with an onClose callback
+  it('willClose', (done) => {
+    // create a modal with an willClose callback
     Swal.fire({
-      title: 'onClose test',
-      onClose: (_modal) => {
+      title: 'willClose test',
+      willClose: (_modal) => {
         expect(modal).to.equal(_modal)
         expect(Swal.getContainer()).to.equal($('.swal2-container'))
         done()
@@ -312,12 +324,12 @@ describe('Miscellaneous tests', function () {
     Swal.getCloseButton().click()
   })
 
-  it('Swal.fire() in onClose', (done) => {
+  it('Swal.fire() in willClose', (done) => {
     Swal.fire({
-      title: 'onClose test',
-      onClose: () => {
+      title: 'willClose test',
+      willClose: () => {
         Swal.fire({
-          text: 'OnClose',
+          text: 'WillClose',
           input: 'text',
           customClass: {
             input: 'on-close-swal'
@@ -340,11 +352,12 @@ describe('Miscellaneous tests', function () {
 
     SwalWithoutAnimation.fire({
       title: 'Esc me',
-      onOpen: () => triggerKeydownEvent(Swal.getPopup(), 'Escape')
+      didOpen: () => triggerKeydownEvent(Swal.getPopup(), 'Escape')
     }).then((result) => {
       expect(result).to.eql({
         dismiss: Swal.DismissReason.esc,
         isConfirmed: false,
+        isDenied: false,
         isDismissed: true,
       })
       done()
@@ -360,7 +373,7 @@ describe('Miscellaneous tests', function () {
         functionWasCalled = true
         return false
       },
-      onOpen: () => {
+      didOpen: () => {
         expect(functionWasCalled).to.equal(false)
 
         triggerKeydownEvent(Swal.getPopup(), 'Escape')
@@ -383,6 +396,7 @@ describe('Miscellaneous tests', function () {
       expect(result).to.eql({
         dismiss: Swal.DismissReason.close,
         isConfirmed: false,
+        isDenied: false,
         isDismissed: true,
       })
       done()
@@ -407,17 +421,34 @@ describe('Miscellaneous tests', function () {
 
   it('cancel button', (done) => {
     Swal.fire({
-      title: 'Cancel me'
+      showCancelButton: true
     }).then((result) => {
       expect(result).to.eql({
         dismiss: Swal.DismissReason.cancel,
         isConfirmed: false,
+        isDenied: false,
         isDismissed: true,
       })
       done()
     })
 
     Swal.clickCancel()
+  })
+
+  it('deny button', (done) => {
+    Swal.fire({
+      showDenyButton: true
+    }).then((result) => {
+      expect(result).to.eql({
+        value: false,
+        isConfirmed: false,
+        isDenied: true,
+        isDismissed: false,
+      })
+      done()
+    })
+
+    Swal.clickDeny()
   })
 
   it('timer', (done) => {
@@ -428,6 +459,7 @@ describe('Miscellaneous tests', function () {
       expect(result).to.eql({
         dismiss: Swal.DismissReason.timer,
         isConfirmed: false,
+        isDenied: false,
         isDismissed: true,
       })
       done()
@@ -461,12 +493,14 @@ describe('Miscellaneous tests', function () {
       padding: '2em',
       background: 'red',
       confirmButtonColor: 'green',
+      denyButtonColor: 'red',
       cancelButtonColor: 'blue'
     })
 
     expect(Swal.getPopup().style.padding).to.equal('2em')
     expect(window.getComputedStyle(Swal.getPopup()).backgroundColor, 'rgb(255, 0).to.equal(0)')
     expect(Swal.getConfirmButton().style.backgroundColor).to.equal('green')
+    expect(Swal.getDenyButton().style.backgroundColor).to.equal('red')
     expect(Swal.getCancelButton().style.backgroundColor).to.equal('blue')
   })
 
@@ -497,9 +531,7 @@ describe('Miscellaneous tests', function () {
 
   it('preConfirm return false', () => {
     SwalWithoutAnimation.fire({
-      preConfirm: () => {
-        return false
-      }
+      preConfirm: () => false,
     })
 
     Swal.clickConfirm()
@@ -509,13 +541,11 @@ describe('Miscellaneous tests', function () {
   it('Custom content', (done) => {
     Swal.fire({
       showCancelButton: true,
-      onOpen: () => {
+      didOpen: () => {
         Swal.getContent().textContent = 'Custom content'
         Swal.clickConfirm()
       },
-      preConfirm: () => {
-        return 'Some data from custom control'
-      }
+      preConfirm: () => 'Some data from custom control',
     }).then(result => {
       expect(result.value).to.equal('Some data from custom control')
       done()
@@ -524,24 +554,34 @@ describe('Miscellaneous tests', function () {
 
   it('preConfirm returns 0', (done) => {
     SwalWithoutAnimation.fire({
-      onOpen: () => {
-        Swal.clickConfirm()
-      },
-      preConfirm: () => {
-        return 0
-      }
+      didOpen: () => Swal.clickConfirm(),
+      preConfirm: () => 0,
     }).then(result => {
       expect(result.value).to.equal(0)
       done()
     })
   })
 
-  it('Model shows with swal2 classes used in html', () => {
+  it('preConfirm returns object containing toPromise', (done) => {
+    SwalWithoutAnimation.fire({
+      didOpen: () => Swal.clickConfirm(),
+      preConfirm: () => ({
+        toPromise: () => Promise.resolve(0)
+      })
+    }).then(result => {
+      expect(result.value).to.equal(0)
+      done()
+    })
+  })
+
+  it('Popup shows with swal2 classes used in html', (done) => {
     Swal.fire({
       html: '<span class="swal2-cancel"></span>'
     })
-    expect(Swal.getPopup().classList.contains('swal2-show')).to.be.true
-    Swal.close()
+    setTimeout(() => {
+      expect(Swal.getPopup().classList.contains('swal2-show')).to.be.true
+      done()
+    }, SHOW_CLASS_TIMEOUT)
   })
 })
 
@@ -581,6 +621,7 @@ describe('Outside click', () => {
       expect(result).to.eql({
         dismiss: Swal.DismissReason.backdrop,
         isConfirmed: false,
+        isDenied: false,
         isDismissed: true,
       })
       done()
@@ -589,15 +630,15 @@ describe('Outside click', () => {
   })
 
   it('double backdrop click', (done) => {
-    const onAfterClose = cy.spy()
+    const didClose = cy.spy()
     Swal.fire({
-      title: 'onAfterClose should be triggered once',
-      onAfterClose
+      title: 'didClose should be triggered once',
+      didClose
     })
     Swal.getContainer().click()
     Swal.getContainer().click()
     setTimeout(() => {
-      expect(onAfterClose.calledOnce).to.be.true
+      expect(didClose.calledOnce).to.be.true
       done()
     }, 500)
   })
@@ -642,6 +683,7 @@ describe('Outside click', () => {
       expect(result).to.eql({
         dismiss: Swal.DismissReason.backdrop,
         isConfirmed: false,
+        isDenied: false,
         isDismissed: true,
       })
       done()

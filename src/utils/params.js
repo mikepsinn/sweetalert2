@@ -1,4 +1,4 @@
-import { warn, warnAboutDepreation } from '../utils/utils.js'
+import { warn, warnAboutDeprecation } from '../utils/utils.js'
 
 export const defaultParams = {
   title: '',
@@ -7,6 +7,7 @@ export const defaultParams = {
   html: '',
   footer: '',
   icon: undefined,
+  iconColor: undefined,
   iconHtml: undefined,
   toast: false,
   animation: true,
@@ -30,21 +31,27 @@ export const defaultParams = {
   stopKeydownPropagation: true,
   keydownListenerCapture: false,
   showConfirmButton: true,
+  showDenyButton: false,
   showCancelButton: false,
   preConfirm: undefined,
   confirmButtonText: 'OK',
   confirmButtonAriaLabel: '',
   confirmButtonColor: undefined,
+  denyButtonText: 'No',
+  denyButtonAriaLabel: '',
+  denyButtonColor: undefined,
   cancelButtonText: 'Cancel',
   cancelButtonAriaLabel: '',
   cancelButtonColor: undefined,
   buttonsStyling: true,
   reverseButtons: false,
   focusConfirm: true,
+  focusDeny: false,
   focusCancel: false,
   showCloseButton: false,
   closeButtonHtml: '&times;',
   closeButtonAriaLabel: 'Close this dialog',
+  loaderHtml: '',
   showLoaderOnConfirm: false,
   imageUrl: undefined,
   imageWidth: undefined,
@@ -70,47 +77,71 @@ export const defaultParams = {
   progressStepsDistance: undefined,
   onBeforeOpen: undefined,
   onOpen: undefined,
+  willOpen: undefined,
+  didOpen: undefined,
   onRender: undefined,
+  didRender: undefined,
   onClose: undefined,
   onAfterClose: undefined,
+  willClose: undefined,
+  didClose: undefined,
   onDestroy: undefined,
+  didDestroy: undefined,
   scrollbarPadding: true
 }
 
 export const updatableParams = [
-  'title',
-  'titleText',
-  'text',
-  'html',
-  'footer',
-  'icon',
-  'hideClass',
-  'customClass',
-  'allowOutsideClick',
   'allowEscapeKey',
-  'showConfirmButton',
-  'showCancelButton',
-  'confirmButtonText',
-  'confirmButtonAriaLabel',
-  'confirmButtonColor',
-  'cancelButtonText',
+  'allowOutsideClick',
+  'background',
+  'buttonsStyling',
   'cancelButtonAriaLabel',
   'cancelButtonColor',
-  'buttonsStyling',
-  'reverseButtons',
+  'cancelButtonText',
+  'closeButtonAriaLabel',
+  'closeButtonHtml',
+  'confirmButtonAriaLabel',
+  'confirmButtonColor',
+  'confirmButtonText',
+  'currentProgressStep',
+  'customClass',
+  'denyButtonAriaLabel',
+  'denyButtonColor',
+  'denyButtonText',
+  'didClose',
+  'didDestroy',
+  'footer',
+  'hideClass',
+  'html',
+  'icon',
+  'iconColor',
+  'imageAlt',
+  'imageHeight',
   'imageUrl',
   'imageWidth',
-  'imageHeight',
-  'imageAlt',
-  'progressSteps',
-  'currentProgressStep',
-  'onClose',
   'onAfterClose',
-  'onDestroy'
+  'onClose',
+  'onDestroy',
+  'progressSteps',
+  'reverseButtons',
+  'showCancelButton',
+  'showCloseButton',
+  'showConfirmButton',
+  'showDenyButton',
+  'text',
+  'title',
+  'titleText',
+  'willClose',
 ]
 
 export const deprecatedParams = {
   animation: 'showClass" and "hideClass',
+  onBeforeOpen: 'willOpen',
+  onOpen: 'didOpen',
+  onRender: 'didRender',
+  onClose: 'willClose',
+  onAfterClose: 'didClose',
+  onDestroy: 'didDestroy',
 }
 
 const toastIncompatibleParams = [
@@ -118,6 +149,7 @@ const toastIncompatibleParams = [
   'allowEnterKey',
   'backdrop',
   'focusConfirm',
+  'focusDeny',
   'focusCancel',
   'heightAuto',
   'keydownListenerCapture'
@@ -161,7 +193,7 @@ const checkIfToastParamIsValid = (param) => {
 
 const checkIfParamIsDeprecated = (param) => {
   if (isDeprecatedParameter(param)) {
-    warnAboutDepreation(param, isDeprecatedParameter(param))
+    warnAboutDeprecation(param, isDeprecatedParameter(param))
   }
 }
 

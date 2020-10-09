@@ -19,27 +19,40 @@ QUnit.test('update() method', (assert) => {
   })
 
   Swal.update({
+    background: 'green',
     title: 'New title',
     html: 'New content',
     icon: 'success',
+    iconColor: 'blue',
     showConfirmButton: false,
+    showDenyButton: true,
     showCancelButton: true,
+    denyButtonText: 'New deny button text',
     cancelButtonText: 'New cancel button text',
-    imageUrl: '/assets/swal2-logo.png'
+    imageUrl: '/assets/swal2-logo.png',
+    showCloseButton: true,
   })
+
+  assert.equal(window.getComputedStyle(Swal.getPopup()).backgroundColor, 'rgb(0, 128, 0)')
 
   assert.equal(Swal.getTitle().textContent, 'New title')
   assert.equal(Swal.getContent().textContent, 'New content')
 
   assert.ok(isVisible(Swal.getIcon()))
   assert.equal(Swal.getIcon(), $('.swal2-success'))
+  assert.equal(Swal.getIcon().style.color, 'blue')
+  assert.equal(Swal.getIcon().style.borderColor, 'blue')
 
   assert.ok(isVisible(Swal.getImage()))
   assert.ok(Swal.getImage().src.indexOf('/assets/swal2-logo.png') > 0)
 
   assert.notOk(isVisible(Swal.getConfirmButton()))
+  assert.ok(isVisible(Swal.getDenyButton()))
+  assert.equal(Swal.getDenyButton().textContent, 'New deny button text')
   assert.ok(isVisible(Swal.getCancelButton()))
   assert.equal(Swal.getCancelButton().textContent, 'New cancel button text')
+
+  assert.ok(isVisible(Swal.getCloseButton()))
 })
 
 QUnit.test('update customClass', (assert) => {
@@ -62,6 +75,7 @@ QUnit.test('update customClass', (assert) => {
       input: 'input-class',
       actions: 'actions-class',
       confirmButton: 'confirm-button-class',
+      denyButton: 'deny-button-class',
       cancelButton: 'cancel-button-class',
       footer: 'footer-class'
     }
@@ -81,6 +95,7 @@ QUnit.test('update customClass', (assert) => {
       input: 'input-class-NEW',
       actions: 'actions-class-NEW',
       confirmButton: 'confirm-button-class-NEW',
+      denyButton: 'deny-button-class-NEW',
       cancelButton: 'cancel-button-class-NEW',
       footer: 'footer-class-NEW'
     }
@@ -97,6 +112,7 @@ QUnit.test('update customClass', (assert) => {
   assert.notOk(Swal.getInput().classList.contains('input-class'))
   assert.notOk(Swal.getActions().classList.contains('actions-class'))
   assert.notOk(Swal.getConfirmButton().classList.contains('confirm-button-class'))
+  assert.notOk(Swal.getDenyButton().classList.contains('deny-button-class'))
   assert.notOk(Swal.getCancelButton().classList.contains('cancel-button-class'))
   assert.notOk(Swal.getFooter().classList.contains('footer-class'))
 
@@ -111,6 +127,7 @@ QUnit.test('update customClass', (assert) => {
   assert.ok(Swal.getInput().classList.contains('input-class-NEW'))
   assert.ok(Swal.getActions().classList.contains('actions-class-NEW'))
   assert.ok(Swal.getConfirmButton().classList.contains('confirm-button-class-NEW'))
+  assert.ok(Swal.getDenyButton().classList.contains('deny-button-class-NEW'))
   assert.ok(Swal.getCancelButton().classList.contains('cancel-button-class-NEW'))
   assert.ok(Swal.getFooter().classList.contains('footer-class-NEW'))
 })
@@ -145,7 +162,7 @@ QUnit.test('should not affect showClass', (assert) => {
   const done = assert.async()
   Swal.fire({
     icon: 'success',
-    onOpen: () => {
+    didOpen: () => {
       Swal.update({})
       assert.ok(Swal.getContainer().classList.contains('swal2-backdrop-show'))
       assert.ok(Swal.getPopup().classList.contains('swal2-show'))

@@ -14,7 +14,7 @@ describe('API', () => {
     assertConsistent('before first swal')
     Swal.fire({
       title: 'test',
-      onOpen: () => {
+      didOpen: () => {
         assertConsistent('after opening first swal')
         Swal.clickConfirm()
       }
@@ -49,11 +49,12 @@ describe('API', () => {
         return super._main({
           input: 'text',
           inputValue: 'inputValue',
-          onOpen: () => MySwal.clickConfirm()
+          didOpen: () => MySwal.clickConfirm()
         }).then(result => {
           expect(result).to.be.eql({
             value: 'inputValue',
             isConfirmed: true,
+            isDenied: false,
             isDismissed: false,
           })
           return 'result'

@@ -58,6 +58,7 @@ describe('Toast', () => {
       expect(result).to.eql({
         dismiss: Toast.DismissReason.close,
         isConfirmed: false,
+        isDenied: false,
         isDismissed: true,
       })
       done()
@@ -94,10 +95,10 @@ describe('Toast', () => {
 
   it('Body classes are removed after closing toats', (done) => {
     Toast.fire({
-      onOpen: () => {
+      didOpen: () => {
         Toast.close()
       },
-      onAfterClose: () => {
+      didClose: () => {
         expect(document.body.classList.contains('swal2-shown')).to.be.false
         expect(document.body.classList.contains('swal2-toast-shown')).to.be.false
         done()

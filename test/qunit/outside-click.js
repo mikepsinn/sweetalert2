@@ -16,6 +16,7 @@ QUnit.test('backdrop click', (assert) => {
     assert.deepEqual(result, {
       dismiss: Swal.DismissReason.backdrop,
       isConfirmed: false,
+      isDenied: false,
       isDismissed: true,
     })
     done()
@@ -26,18 +27,18 @@ QUnit.test('backdrop click', (assert) => {
 
 QUnit.test('double backdrop click', (assert) => {
   const done = assert.async()
-  const onAfterClose = sinon.fake()
+  const didClose = sinon.fake()
 
   Swal.fire({
-    title: 'onAfterClose should be triggered once',
-    onAfterClose
+    title: 'didClose should be triggered once',
+    didClose
   })
 
   Swal.getContainer().click()
   Swal.getContainer().click()
 
   setTimeout(() => {
-    assert.ok(onAfterClose.calledOnce)
+    assert.ok(didClose.calledOnce)
     done()
   }, 500)
 })
@@ -96,6 +97,7 @@ QUnit.test('allowOutsideClick: () => !swal.isLoading()', (assert) => {
     assert.deepEqual(result, {
       dismiss: Swal.DismissReason.backdrop,
       isConfirmed: false,
+      isDenied: false,
       isDismissed: true,
     })
     done()

@@ -19,27 +19,40 @@ describe('update()', () => {
     })
 
     Swal.update({
+      background: 'green',
       title: 'New title',
       html: 'New content',
       icon: 'success',
+      iconColor: 'blue',
       showConfirmButton: false,
+      showDenyButton: true,
       showCancelButton: true,
+      denyButtonText: 'New deny button text',
       cancelButtonText: 'New cancel button text',
-      imageUrl: '/assets/swal2-logo.png'
+      imageUrl: '/assets/swal2-logo.png',
+      showCloseButton: true,
     })
+
+    expect(window.getComputedStyle(Swal.getPopup()).backgroundColor).to.equal('rgb(0, 128, 0)')
 
     expect(Swal.getTitle().textContent).to.equal('New title')
     expect(Swal.getContent().textContent).to.equal('New content')
 
     expect(isVisible(Swal.getIcon())).to.be.true
     expect(Swal.getIcon()).to.equal($('.swal2-success'))
+    expect(Swal.getIcon().style.color).to.equal('blue')
+    expect(Swal.getIcon().style.borderColor).to.equal('blue')
 
     expect(isVisible(Swal.getImage())).to.be.true
     expect(Swal.getImage().src.indexOf('/assets/swal2-logo.png') > 0).to.be.true
 
     expect(isVisible(Swal.getConfirmButton())).to.be.false
     expect(isVisible(Swal.getCancelButton())).to.be.true
+    expect(isVisible(Swal.getDenyButton())).to.be.true
     expect(Swal.getCancelButton().textContent).to.equal('New cancel button text')
+    expect(Swal.getDenyButton().textContent).to.equal('New deny button text')
+
+    expect(isVisible(Swal.getCloseButton())).to.be.true
   })
 
   it('update customClass', () => {
@@ -62,6 +75,7 @@ describe('update()', () => {
         input: 'input-class',
         actions: 'actions-class',
         confirmButton: 'confirm-button-class',
+        denyButton: 'deny-button-class',
         cancelButton: 'cancel-button-class',
         footer: 'footer-class'
       }
@@ -81,6 +95,7 @@ describe('update()', () => {
         input: 'input-class-NEW',
         actions: 'actions-class-NEW',
         confirmButton: 'confirm-button-class-NEW',
+        denyButton: 'deny-button-class-NEW',
         cancelButton: 'cancel-button-class-NEW',
         footer: 'footer-class-NEW'
       }
@@ -97,6 +112,7 @@ describe('update()', () => {
     expect(Swal.getInput().classList.contains('input-class')).to.be.false
     expect(Swal.getActions().classList.contains('actions-class')).to.be.false
     expect(Swal.getConfirmButton().classList.contains('confirm-button-class')).to.be.false
+    expect(Swal.getDenyButton().classList.contains('deny-button-class')).to.be.false
     expect(Swal.getCancelButton().classList.contains('cancel-button-class')).to.be.false
     expect(Swal.getFooter().classList.contains('footer-class')).to.be.false
 
@@ -111,6 +127,7 @@ describe('update()', () => {
     expect(Swal.getInput().classList.contains('input-class-NEW')).to.be.true
     expect(Swal.getActions().classList.contains('actions-class-NEW')).to.be.true
     expect(Swal.getConfirmButton().classList.contains('confirm-button-class-NEW')).to.be.true
+    expect(Swal.getDenyButton().classList.contains('deny-button-class-NEW')).to.be.true
     expect(Swal.getCancelButton().classList.contains('cancel-button-class-NEW')).to.be.true
     expect(Swal.getFooter().classList.contains('footer-class-NEW')).to.be.true
   })
@@ -144,7 +161,7 @@ describe('update()', () => {
   it('should not affect showClass', (done) => {
     Swal.fire({
       icon: 'success',
-      onOpen: () => {
+      didOpen: () => {
         Swal.update({})
         expect(Swal.getContainer().classList.contains('swal2-backdrop-show')).to.be.true
         expect(Swal.getPopup().classList.contains('swal2-show')).to.be.true

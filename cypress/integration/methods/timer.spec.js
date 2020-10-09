@@ -1,13 +1,16 @@
 import { $, Swal, SwalWithoutAnimation, isVisible } from '../../utils'
 
 describe('getTimerLeft()', () => {
-  it('should return time left', () => {
+  it('should return time left', (done) => {
     Swal.fire({
       timer: 1000
     })
-    const timerLeft = Swal.getTimerLeft()
-    expect(timerLeft > 0).to.be.true
-    expect(timerLeft <= 1000).to.be.true
+    setTimeout(() => {
+      const timerLeft = Swal.getTimerLeft()
+      expect(timerLeft > 0).to.be.true
+      expect(timerLeft < 1000).to.be.true
+      done()
+    }, 1)
   })
 
   it('should return undefined if popup does not have timer', () => {
@@ -162,11 +165,11 @@ describe('timerProgressBar', () => {
     }, 20)
   })
 
-  it('should stop the animation of timer progress bar when timer is stopped in onOpen', (done) => {
+  it('should stop the animation of timer progress bar when timer is stopped in didOpen', (done) => {
     SwalWithoutAnimation.fire({
       timer: 100,
       timerProgressBar: true,
-      onOpen: Swal.stopTimer
+      didOpen: Swal.stopTimer
     })
     setTimeout(() => {
       expect(Swal.getTimerProgressBar().style.transition).to.equal('')

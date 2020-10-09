@@ -1,7 +1,8 @@
-const { $, Swal, SwalWithoutAnimation, triggerKeydownEvent, isVisible, isHidden, TIMEOUT } = require('./helpers')
+const { $, Swal, SwalWithoutAnimation, triggerKeydownEvent, isVisible, isHidden, ensureClosed, TIMEOUT } = require('./helpers')
 const { toArray } = require('../../src/utils/utils')
 const { measureScrollbar } = require('../../src/utils/dom/measureScrollbar')
 const sinon = require('sinon/pkg/sinon')
+const { SHOW_CLASS_TIMEOUT } = require('../../src/utils/openPopup')
 
 QUnit.test('version is correct semver', (assert) => {
   assert.ok(Swal.version.match(/\d+\.\d+\.\d+/))
@@ -23,10 +24,12 @@ QUnit.test('container scrolled to top and has scrollbar on open', (assert) => {
     imageUrl: 'https://placeholder.pics/svg/300x1500',
     imageHeight: 1500,
     imageAlt: 'A tall image',
-    onOpen: () => {
+    didOpen: () => {
       assert.equal(Swal.getContainer().scrollTop, 0)
-      assert.equal(Swal.getContainer().style.overflowY, 'auto')
-      done()
+      setTimeout(() => {
+        assert.equal(Swal.getContainer().style.overflowY, 'auto')
+        done()
+      }, SHOW_CLASS_TIMEOUT)
     }
   })
 })
@@ -78,6 +81,7 @@ QUnit.test('should not throw console error when <svg> tags are present (#1289)',
 QUnit.test('should show the popup with OK button in case of empty object passed as an argument', (assert) => {
   Swal.fire({})
   assert.ok(isVisible(Swal.getConfirmButton()))
+  assert.ok(isHidden(Swal.getDenyButton()))
   assert.ok(isHidden(Swal.getCancelButton()))
   assert.equal(Swal.getTitle().textContent, '')
   assert.equal(Swal.getContent().textContent, '')
@@ -86,6 +90,7 @@ QUnit.test('should show the popup with OK button in case of empty object passed 
 
 QUnit.test('the vertical scrollbar should be hidden and the according padding-right should be set', (assert) => {
   const done = assert.async()
+  ensureClosed()
   const talltDiv = document.createElement('div')
   talltDiv.innerHTML = Array(100).join('<div>lorem ipsum</div>')
   document.body.appendChild(talltDiv)
@@ -95,17 +100,17 @@ QUnit.test('the vertical scrollbar should be hidden and the according padding-ri
 
   Swal.fire({
     title: 'The body has visible scrollbar, I will hide it and adjust padding-right on body',
-    onAfterClose: () => {
+    didClose: () => {
       assert.equal(bodyStyles.paddingRight, '30px')
       document.body.removeChild(talltDiv)
       done()
     }
   })
-  const bodyStyles = window.getComputedStyle(document.body)
 
+  const bodyStyles = window.getComputedStyle(document.body)
   assert.equal(bodyStyles.paddingRight, `${scrollbarWidth + 30}px`)
   assert.equal(bodyStyles.overflow, 'hidden')
-  Swal.clickConfirm()
+  Swal.close()
 })
 
 QUnit.test('scrollbarPadding disabled', (assert) => {
@@ -117,14 +122,14 @@ QUnit.test('scrollbarPadding disabled', (assert) => {
   Swal.fire({
     title: 'Padding right adjustment disabled',
     scrollbarPadding: false,
-    onAfterClose: () => {
+    didClose: () => {
       document.body.removeChild(talltDiv)
     }
   })
 
   const bodyStyles = window.getComputedStyle(document.body)
   assert.equal(bodyStyles.paddingRight, '30px')
-  Swal.clickConfirm()
+  Swal.close()
 })
 
 QUnit.test('the vertical scrollbar should be restored before a toast is fired after a modal', (assert) => {
@@ -140,7 +145,7 @@ QUnit.test('the vertical scrollbar should be restored before a toast is fired af
     Swal.fire({
       text: 'Body padding-right should be restored',
       toast: true,
-      onOpen: () => {
+      didOpen: () => {
         assert.equal(bodyStyles.paddingRight, '30px')
         document.body.removeChild(talltDiv)
         done()
@@ -149,7 +154,22 @@ QUnit.test('the vertical scrollbar should be restored before a toast is fired af
   })
 
   const bodyStyles = window.getComputedStyle(document.body)
-  Swal.clickConfirm()
+  Swal.close()
+})
+
+QUnit.test('should not add body padding if body has overflow-y: hidden', (assert) => {
+  const talltDiv = document.createElement('div')
+  talltDiv.innerHTML = Array(100).join('<div>lorem ipsum</div>')
+  document.body.appendChild(talltDiv)
+  document.body.style.paddingRight = '0px'
+  document.body.style.overflowY = 'hidden'
+
+  SwalWithoutAnimation.fire()
+
+  const bodyStyles = window.getComputedStyle(document.body)
+  assert.equal(bodyStyles.paddingRight, '0px')
+  document.body.removeChild(talltDiv)
+  Swal.close()
 })
 
 QUnit.test('modal width', (assert) => {
@@ -190,15 +210,19 @@ QUnit.test('getters', (assert) => {
     imageUrl: '/assets/swal2-logo.png',
     confirmButtonText: 'Confirm button',
     confirmButtonAriaLabel: 'Confirm button aria-label',
+    denyButtonText: 'Deny button',
+    denyButtonAriaLabel: 'Deny button aria-label',
     cancelButtonText: 'Cancel button',
     cancelButtonAriaLabel: 'Cancel button aria-label',
     footer: '<b>Footer</b>'
   })
   assert.ok(Swal.getImage().src.indexOf('/assets/swal2-logo.png'))
-  assert.equal(Swal.getActions().textContent, 'Confirm buttonCancel button')
+  assert.equal(Swal.getActions().textContent, 'Confirm buttonDeny buttonCancel button')
   assert.equal(Swal.getConfirmButton().innerText, 'Confirm button')
+  assert.equal(Swal.getDenyButton().innerText, 'Deny button')
   assert.equal(Swal.getCancelButton().innerText, 'Cancel button')
   assert.equal(Swal.getConfirmButton().getAttribute('aria-label'), 'Confirm button aria-label')
+  assert.equal(Swal.getDenyButton().getAttribute('aria-label'), 'Deny button aria-label')
   assert.equal(Swal.getCancelButton().getAttribute('aria-label'), 'Cancel button aria-label')
   assert.equal(Swal.getFooter().innerHTML, '<b>Footer</b>')
 
@@ -281,6 +305,26 @@ QUnit.test('validation message', (assert) => {
   }, TIMEOUT)
 })
 
+QUnit.test('validation message with object containing toPromise', (assert) => {
+  const done = assert.async()
+
+  SwalWithoutAnimation.fire({
+    input: 'text',
+    inputValidator: (value) => ({
+      toPromise: () => Promise.resolve(!value && 'no falsy values')
+    })
+  })
+
+  setTimeout(() => {
+    Swal.clickConfirm()
+    setTimeout(() => {
+      assert.ok(isVisible(Swal.getValidationMessage()))
+      assert.equal(Swal.getValidationMessage().textContent, 'no falsy values')
+      done()
+    }, TIMEOUT)
+  }, TIMEOUT)
+})
+
 QUnit.test('should throw console error about unexpected type of InputOptions', (assert) => {
   const _consoleError = console.error
   const spy = sinon.spy(console, 'error')
@@ -315,10 +359,12 @@ QUnit.test('disable/enable buttons', (assert) => {
 
   Swal.disableButtons()
   assert.ok(Swal.getConfirmButton().disabled)
+  assert.ok(Swal.getDenyButton().disabled)
   assert.ok(Swal.getCancelButton().disabled)
 
   Swal.enableButtons()
   assert.notOk(Swal.getConfirmButton().disabled)
+  assert.notOk(Swal.getDenyButton().disabled)
   assert.notOk(Swal.getCancelButton().disabled)
 })
 
@@ -357,13 +403,16 @@ QUnit.test('disable/enable input', (assert) => {
 QUnit.test('reversed buttons', (assert) => {
   Swal.fire({
     text: 'Modal with reversed buttons',
+    showDenyButton: true,
     showCancelButton: true,
     reverseButtons: true
   })
-  assert.equal(Swal.getConfirmButton().previousSibling, Swal.getCancelButton())
+  assert.equal(Swal.getConfirmButton().previousSibling, Swal.getDenyButton())
+  assert.equal(Swal.getDenyButton().previousSibling, Swal.getCancelButton())
 
   Swal.fire('Modal with buttons')
-  assert.equal(Swal.getCancelButton().previousSibling, Swal.getConfirmButton())
+  assert.equal(Swal.getCancelButton().previousSibling, Swal.getDenyButton())
+  assert.equal(Swal.getDenyButton().previousSibling, Swal.getConfirmButton())
 })
 
 QUnit.test('modal vertical offset', (assert) => {
@@ -387,79 +436,79 @@ QUnit.test('modal vertical offset', (assert) => {
   })
 })
 
-QUnit.test('onOpen', (assert) => {
+QUnit.test('didOpen', (assert) => {
   const done = assert.async()
 
-  // create a modal with an onOpen callback
+  // create a modal with an didOpen callback
   Swal.fire({
-    title: 'onOpen test',
-    onOpen: (modal) => {
+    title: 'didOpen test',
+    didOpen: (modal) => {
       assert.equal(Swal.getPopup(), modal)
       done()
     }
   })
 })
 
-QUnit.test('onBeforeOpen', (assert) => {
+QUnit.test('willOpen', (assert) => {
   const done = assert.async()
 
-  // create a modal with an onBeforeOpen callback
+  // create a modal with an willOpen callback
   Swal.fire({
-    title: 'onBeforeOpen test',
-    onBeforeOpen: (modal) => {
+    title: 'willOpen test',
+    willOpen: (modal) => {
       assert.notOk(Swal.isVisible())
       assert.equal(Swal.getPopup(), modal)
     }
   })
 
-  // check that onBeforeOpen calls properly
-  const dynamicTitle = 'Set onBeforeOpen title'
+  // check that willOpen calls properly
+  const dynamicTitle = 'Set willOpen title'
   Swal.fire({
-    title: 'onBeforeOpen test',
-    onBeforeOpen: () => {
+    title: 'willOpen test',
+    willOpen: () => {
       Swal.getTitle().innerHTML = dynamicTitle
     },
-    onOpen: () => {
+    didOpen: () => {
       assert.equal(Swal.getTitle().innerHTML, dynamicTitle)
       done()
     }
   })
 })
 
-QUnit.test('onRender', (assert) => {
-  const onRender = sinon.fake()
+QUnit.test('didRender', (assert) => {
+  const didRender = sinon.fake()
 
-  // create a modal with an onRender callback
-  // the onRender hook should be called once here
+  // create a modal with an didRender callback
+  // the didRender hook should be called once here
   Swal.fire({
-    title: 'onRender test',
-    onRender
+    title: 'didRender test',
+    didRender
   })
 
-  assert.ok(onRender.calledOnce)
+  assert.ok(didRender.calledOnce)
 
   // update the modal, causing a new render
-  // the onRender hook should be called once again
+  // the didRender hook should be called once again
   Swal.update({})
 
-  assert.ok(onRender.calledTwice)
+  assert.ok(didRender.calledTwice)
 
-  // the modal element must always be passed to the onRender hook
-  assert.ok(onRender.alwaysCalledWithExactly(Swal.getPopup()))
+  // the modal element must always be passed to the didRender hook
+  assert.ok(didRender.alwaysCalledWithExactly(Swal.getPopup()))
 })
 
-QUnit.test('onAfterClose', (assert) => {
+QUnit.test('didClose', (assert) => {
   const done = assert.async()
-  let onCloseFinished = false
+  let willCloseFinished = false
 
-  // create a modal with an onAfterClose callback
+  // create a modal with an didClose callback
   Swal.fire({
-    title: 'onAfterClose test',
-    onClose: () => {
-      onCloseFinished = true
+    title: 'didClose test',
+    willClose: () => {
+      willCloseFinished = true
     },
-    onAfterClose: () => {
-      assert.ok(onCloseFinished)
+    didClose: () => {
+      assert.ok(willCloseFinished)
       assert.notOk(Swal.getContainer())
       done()
     }
@@ -468,13 +517,13 @@ QUnit.test('onAfterClose', (assert) => {
   Swal.getCloseButton().click()
 })
 
-QUnit.test('onClose', (assert) => {
+QUnit.test('willClose', (assert) => {
   const done = assert.async()
 
-  // create a modal with an onClose callback
+  // create a modal with an willClose callback
   Swal.fire({
-    title: 'onClose test',
-    onClose: (_modal) => {
+    title: 'willClose test',
+    willClose: (_modal) => {
       assert.ok(modal, _modal)
       assert.ok(Swal.getContainer())
       done()
@@ -485,18 +534,18 @@ QUnit.test('onClose', (assert) => {
   Swal.getCloseButton().click()
 })
 
-QUnit.test('onDestroy', (assert) => {
+QUnit.test('didDestroy', (assert) => {
   const done = assert.async()
   let firstPopupDestroyed = false
   Swal.fire({
     title: '1',
-    onDestroy: () => {
+    didDestroy: () => {
       firstPopupDestroyed = true
     }
   })
   Swal.fire({
     title: '2',
-    onDestroy: () => {
+    didDestroy: () => {
       done()
     }
   })
@@ -504,14 +553,14 @@ QUnit.test('onDestroy', (assert) => {
   Swal.getConfirmButton().click()
 })
 
-QUnit.test('Swal.fire() in onClose', (assert) => {
+QUnit.test('Swal.fire() in willClose', (assert) => {
   const done = assert.async()
 
   Swal.fire({
-    title: 'onClose test',
-    onClose: () => {
+    title: 'willClose test',
+    willClose: () => {
       Swal.fire({
-        text: 'OnClose',
+        text: 'WillClose',
         input: 'text',
         customClass: {
           input: 'on-close-swal'
@@ -536,11 +585,12 @@ QUnit.test('esc key', (assert) => {
 
   SwalWithoutAnimation.fire({
     title: 'Esc me',
-    onOpen: () => triggerKeydownEvent(Swal.getPopup(), 'Escape')
+    didOpen: () => triggerKeydownEvent(Swal.getPopup(), 'Escape')
   }).then((result) => {
     assert.deepEqual(result, {
       dismiss: Swal.DismissReason.esc,
       isConfirmed: false,
+      isDenied: false,
       isDismissed: true,
     })
     done()
@@ -558,7 +608,7 @@ QUnit.test('allowEscapeKey as a function', (assert) => {
       functionWasCalled = true
       return false
     },
-    onOpen: () => {
+    didOpen: () => {
       assert.equal(functionWasCalled, false)
 
       triggerKeydownEvent(Swal.getPopup(), 'Escape')
@@ -583,6 +633,7 @@ QUnit.test('close button', (assert) => {
     assert.deepEqual(result, {
       dismiss: Swal.DismissReason.close,
       isConfirmed: false,
+      isDenied: false,
       isDismissed: true,
     })
     done()
@@ -609,17 +660,36 @@ QUnit.test('cancel button', (assert) => {
   const done = assert.async()
 
   Swal.fire({
-    title: 'Cancel me'
+    showCancelButton: true
   }).then((result) => {
     assert.deepEqual(result, {
       dismiss: Swal.DismissReason.cancel,
       isConfirmed: false,
+      isDenied: false,
       isDismissed: true,
     })
     done()
   })
 
   Swal.clickCancel()
+})
+
+QUnit.test('deny button', (assert) => {
+  const done = assert.async()
+
+  Swal.fire({
+    showDenyButton: true
+  }).then((result) => {
+    assert.deepEqual(result, {
+      value: false,
+      isConfirmed: false,
+      isDenied: true,
+      isDismissed: false,
+    })
+    done()
+  })
+
+  Swal.clickDeny()
 })
 
 QUnit.test('timer', (assert) => {
@@ -632,6 +702,7 @@ QUnit.test('timer', (assert) => {
     assert.deepEqual(result, {
       dismiss: Swal.DismissReason.timer,
       isConfirmed: false,
+      isDenied: false,
       isDismissed: true,
     })
     done()
@@ -661,12 +732,12 @@ QUnit.test('should stop the animation of timer progress bar when timer is stoppe
   }, 20)
 })
 
-QUnit.test('should stop the animation of timer progress bar when timer is stopped in onOpen', (assert) => {
+QUnit.test('should stop the animation of timer progress bar when timer is stopped in didOpen', (assert) => {
   const done = assert.async()
   SwalWithoutAnimation.fire({
     timer: 100,
     timerProgressBar: true,
-    onOpen: Swal.stopTimer
+    didOpen: Swal.stopTimer
   })
   setTimeout(() => {
     assert.equal(Swal.getTimerProgressBar().style.transition, '')
@@ -701,12 +772,14 @@ QUnit.test('visual apperarance', (assert) => {
     padding: '2em',
     background: 'red',
     confirmButtonColor: 'green',
+    denyButtonColor: 'red',
     cancelButtonColor: 'blue'
   })
 
   assert.equal(Swal.getPopup().style.padding, '2em')
   assert.equal(window.getComputedStyle(Swal.getPopup()).backgroundColor, 'rgb(255, 0, 0)')
   assert.equal(Swal.getConfirmButton().style.backgroundColor, 'green')
+  assert.equal(Swal.getDenyButton().style.backgroundColor, 'red')
   assert.equal(Swal.getCancelButton().style.backgroundColor, 'blue')
 })
 
@@ -737,9 +810,7 @@ QUnit.test('backdrop accepts css background param', (assert) => {
 
 QUnit.test('preConfirm return false', (assert) => {
   SwalWithoutAnimation.fire({
-    preConfirm: () => {
-      return false
-    }
+    preConfirm: () => false,
   })
 
   Swal.clickConfirm()
@@ -750,13 +821,11 @@ QUnit.test('Custom content', (assert) => {
   const done = assert.async()
   Swal.fire({
     showCancelButton: true,
-    onOpen: () => {
+    didOpen: () => {
       Swal.getContent().textContent = 'Custom content'
       Swal.clickConfirm()
     },
-    preConfirm: () => {
-      return 'Some data from custom control'
-    }
+    preConfirm: () => 'Some data from custom control',
   }).then(result => {
     assert.ok(result.value)
     done()
@@ -766,22 +835,34 @@ QUnit.test('Custom content', (assert) => {
 QUnit.test('preConfirm returns 0', (assert) => {
   const done = assert.async()
   SwalWithoutAnimation.fire({
-    onOpen: () => {
-      Swal.clickConfirm()
-    },
-    preConfirm: () => {
-      return 0
-    }
+    didOpen: () => Swal.clickConfirm(),
+    preConfirm: () => 0
   }).then(result => {
     assert.equal(result.value, 0)
     done()
   })
 })
 
-QUnit.test('Model shows with swal2 classes used in html', (assert) => {
+QUnit.test('preConfirm returns object containing toPromise', (assert) => {
+  const done = assert.async()
+  SwalWithoutAnimation.fire({
+    didOpen: () => Swal.clickConfirm(),
+    preConfirm: () => ({
+      toPromise: () => Promise.resolve(0)
+    })
+  }).then(result => {
+    assert.equal(result.value, 0)
+    done()
+  })
+})
+
+QUnit.test('Popup shows with swal2 classes used in html', (assert) => {
+  const done = assert.async()
   Swal.fire({
     html: '<span class="swal2-cancel"></span>'
   })
-  assert.ok(Swal.getPopup().classList.contains('swal2-show'))
-  Swal.close()
+  setTimeout(() => {
+    assert.ok(Swal.getPopup().classList.contains('swal2-show'))
+    done()
+  }, SHOW_CLASS_TIMEOUT)
 })

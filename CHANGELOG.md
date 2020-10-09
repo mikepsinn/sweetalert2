@@ -1,3 +1,193 @@
+## [10.3.7](https://github.com/sweetalert2/sweetalert2/compare/v10.3.6...v10.3.7) (2020-10-09)
+
+
+### Bug Fixes
+
+* do not prevent events for Apple Pencil ([#2075](https://github.com/sweetalert2/sweetalert2/issues/2075)) ([88dd4c7](https://github.com/sweetalert2/sweetalert2/commit/88dd4c7d236603f7fce20cf5b19bf40b261debfb))
+
+## [10.3.6](https://github.com/sweetalert2/sweetalert2/compare/v10.3.5...v10.3.6) (2020-10-08)
+
+
+### Bug Fixes
+
+* wrap progress steps when they aren't fitting one row ([#2074](https://github.com/sweetalert2/sweetalert2/issues/2074)) ([fa695bf](https://github.com/sweetalert2/sweetalert2/commit/fa695bffd9d9e45629e7f84c3e73112764f93f7f))
+
+## [10.3.5](https://github.com/sweetalert2/sweetalert2/compare/v10.3.4...v10.3.5) (2020-09-25)
+
+
+### Bug Fixes
+
+* remove null coalescing operator ([#2069](https://github.com/sweetalert2/sweetalert2/issues/2069)) ([5145f75](https://github.com/sweetalert2/sweetalert2/commit/5145f75bf6aa698178e2a0728752b3c8f09c140b))
+
+## [10.3.4](https://github.com/sweetalert2/sweetalert2/compare/v10.3.3...v10.3.4) (2020-09-25)
+
+
+### Bug Fixes
+
+* **types:** move fire<T>(options: SweetAlertOptions<T>) to the top ([#2068](https://github.com/sweetalert2/sweetalert2/issues/2068)) ([20ea88d](https://github.com/sweetalert2/sweetalert2/commit/20ea88dc86b13af7410f82efa7778dc6897443cb))
+
+## [10.3.3](https://github.com/sweetalert2/sweetalert2/compare/v10.3.2...v10.3.3) (2020-09-23)
+
+
+### Bug Fixes
+
+* add timeout before calling setScrollingVisibility() ([#2066](https://github.com/sweetalert2/sweetalert2/issues/2066)) ([c8c28f7](https://github.com/sweetalert2/sweetalert2/commit/c8c28f794633ab30840475b457719d3c6fb6b70e))
+
+## [10.3.2](https://github.com/sweetalert2/sweetalert2/compare/v10.3.1...v10.3.2) (2020-09-22)
+
+
+### Bug Fixes
+
+* add 10ms timeout before adding showClass ([#2063](https://github.com/sweetalert2/sweetalert2/issues/2063)) ([fdc89b7](https://github.com/sweetalert2/sweetalert2/commit/fdc89b701074df807e374de376a6ad24cfce9dc4))
+
+## [10.3.1](https://github.com/sweetalert2/sweetalert2/compare/v10.3.0...v10.3.1) (2020-09-21)
+
+
+### Bug Fixes
+
+* add the opacity workaround and timeout for animating popup ([#2060](https://github.com/sweetalert2/sweetalert2/issues/2060)) ([4362d2b](https://github.com/sweetalert2/sweetalert2/commit/4362d2b21aeb3e409f0e2d9111dd98ad4b8c5ec6))
+
+# [10.3.0](https://github.com/sweetalert2/sweetalert2/compare/v10.2.0...v10.3.0) (2020-09-20)
+
+
+### Features
+
+* consistent hook names: willOpen, didOpen, didRender, willClose, didClose, didDestroy ([#2057](https://github.com/sweetalert2/sweetalert2/issues/2057)) ([6434fb5](https://github.com/sweetalert2/sweetalert2/commit/6434fb56033b53b765c2ac9f3a768e326568b993))
+
+# [10.2.0](https://github.com/sweetalert2/sweetalert2/compare/v10.1.0...v10.2.0) (2020-09-18)
+
+
+### Features
+
+* make background and iconColor params updatable ([#2054](https://github.com/sweetalert2/sweetalert2/issues/2054)) ([ed384ab](https://github.com/sweetalert2/sweetalert2/commit/ed384ab1ce9d70882b67b9475cf867397477e41e))
+
+# [10.1.0](https://github.com/sweetalert2/sweetalert2/compare/v10.0.2...v10.1.0) (2020-09-17)
+
+
+### Features
+
+* add iconColor ([#2052](https://github.com/sweetalert2/sweetalert2/issues/2052)) ([81cb6f9](https://github.com/sweetalert2/sweetalert2/commit/81cb6f9f6d15af653346c7c72d9932ee5074b491))
+
+## [10.0.2](https://github.com/sweetalert2/sweetalert2/compare/v10.0.1...v10.0.2) (2020-09-08)
+
+
+### Bug Fixes
+
+* padding on .swal2-actions for toasts ([e2a8f6f](https://github.com/sweetalert2/sweetalert2/commit/e2a8f6f9b895122ad0e1c848f64eefe0e45ef61b))
+
+## [10.0.1](https://github.com/sweetalert2/sweetalert2/compare/v10.0.0...v10.0.1) (2020-09-08)
+
+
+### Bug Fixes
+
+* **scss:** set $swal2-<...>-button-order vars to null ([ef97ba1](https://github.com/sweetalert2/sweetalert2/commit/ef97ba11eac2119dcb0faa995e84151bf2d92100))
+
+# [10.0.0](https://github.com/sweetalert2/sweetalert2/compare/v9.17.2...v10.0.0) (2020-09-07)
+
+
+### Bug Fixes
+
+* enable buttons in hideLoading ([#2048](https://github.com/sweetalert2/sweetalert2/issues/2048)) ([adcc392](https://github.com/sweetalert2/sweetalert2/commit/adcc3921d406a5970d4ab38ad8f40d2a7a8abf40))
+
+
+### Features
+
+* add loaderHtml ([#2049](https://github.com/sweetalert2/sweetalert2/issues/2049)) ([5c26b38](https://github.com/sweetalert2/sweetalert2/commit/5c26b3849d38a93b2f75f9b5e2be36f91b1c906e))
+* **sass:** add $swal2-<...>-button-order vars ([8f0cf9e](https://github.com/sweetalert2/sweetalert2/commit/8f0cf9ecc6a906ad8582de1c53025ae552d95364))
+* add the third DENY button 🎉 ([#2044](https://github.com/sweetalert2/sweetalert2/issues/2044)) ([1ad0f3c](https://github.com/sweetalert2/sweetalert2/commit/1ad0f3c9b75567c267943256b94b3f2308d3de0f))
+
+
+* BREAKING CHANGE: Separate loader from the confirm button (#2045) ([e049195](https://github.com/sweetalert2/sweetalert2/commit/e049195510f96de39fa375efc9c1820669d89c79)), closes [#2045](https://github.com/sweetalert2/sweetalert2/issues/2045)
+
+
+### BREAKING CHANGES
+
+* Separate loader from the confirm button
+
+## [9.17.2](https://github.com/sweetalert2/sweetalert2/compare/v9.17.1...v9.17.2) (2020-09-03)
+
+
+### Bug Fixes
+
+* **types:** add missing params to SweetAlertUpdatableParameters ([#2042](https://github.com/sweetalert2/sweetalert2/issues/2042)) ([7142fad](https://github.com/sweetalert2/sweetalert2/commit/7142fad6a032481415989436390a5ff2ab65c323))
+
+## [9.17.1](https://github.com/sweetalert2/sweetalert2/compare/v9.17.0...v9.17.1) (2020-07-26)
+
+
+### Bug Fixes
+
+* typo content padding ([#2023](https://github.com/sweetalert2/sweetalert2/issues/2023)) ([e865aef](https://github.com/sweetalert2/sweetalert2/commit/e865aef94eff738c1be9d10b24e934f0f5b4feed))
+
+# [9.17.0](https://github.com/sweetalert2/sweetalert2/compare/v9.16.0...v9.17.0) (2020-07-14)
+
+
+### Features
+
+* make close button updatable ([#2018](https://github.com/sweetalert2/sweetalert2/issues/2018)) ([911394f](https://github.com/sweetalert2/sweetalert2/commit/911394fb8d4ffe7c3771d254b83305309d6e346f))
+
+# [9.16.0](https://github.com/sweetalert2/sweetalert2/compare/v9.15.3...v9.16.0) (2020-07-14)
+
+
+### Features
+
+* **styles:** add $swal2-header-padding variable ([#2001](https://github.com/sweetalert2/sweetalert2/issues/2001)) ([11338e6](https://github.com/sweetalert2/sweetalert2/commit/11338e690891ac7ec7bb702abbc9884190350a63))
+
+## [9.15.3](https://github.com/sweetalert2/sweetalert2/compare/v9.15.2...v9.15.3) (2020-07-09)
+
+
+### Bug Fixes
+
+* url validator to support http://g.co ([#2013](https://github.com/sweetalert2/sweetalert2/issues/2013)) ([8ab6562](https://github.com/sweetalert2/sweetalert2/commit/8ab65628c0e6cd1227bce7d5898a5d77fc5e6f31))
+
+## [9.15.2](https://github.com/sweetalert2/sweetalert2/compare/v9.15.1...v9.15.2) (2020-06-23)
+
+
+### Bug Fixes
+
+* do not fix scrollbar padding in case body has overflow-y: hidden ([#2006](https://github.com/sweetalert2/sweetalert2/issues/2006)) ([bc90d3c](https://github.com/sweetalert2/sweetalert2/commit/bc90d3ccdb589150eeb52d6b5ce254cb61d758bd))
+
+## [9.15.1](https://github.com/sweetalert2/sweetalert2/compare/v9.15.0...v9.15.1) (2020-06-14)
+
+
+### Bug Fixes
+
+* do not use Array.find because it's not supported in IE11 ([20526ab](https://github.com/sweetalert2/sweetalert2/commit/20526ab6121087b9ec4d77b09b765f5bcecb6b58))
+
+# [9.15.0](https://github.com/sweetalert2/sweetalert2/compare/v9.14.4...v9.15.0) (2020-06-13)
+
+
+### Features
+
+* add support for objects containing toPromise method ([#1998](https://github.com/sweetalert2/sweetalert2/issues/1998)) ([0d33441](https://github.com/sweetalert2/sweetalert2/commit/0d3344141c77f4b73d769cb3faa614c917e99f45))
+
+## [9.14.4](https://github.com/sweetalert2/sweetalert2/compare/v9.14.3...v9.14.4) (2020-06-09)
+
+
+### Bug Fixes
+
+* **types:** minor changes ([#1997](https://github.com/sweetalert2/sweetalert2/issues/1997)) ([6ece962](https://github.com/sweetalert2/sweetalert2/commit/6ece962cc8cfd05554fe6a9f37625cbb50fd8b06))
+
+## [9.14.3](https://github.com/sweetalert2/sweetalert2/compare/v9.14.2...v9.14.3) (2020-06-08)
+
+
+### Bug Fixes
+
+* **types:** remove the readonly modifier from 'SweetAlertOptions' ([#1996](https://github.com/sweetalert2/sweetalert2/issues/1996)) ([12fbea0](https://github.com/sweetalert2/sweetalert2/commit/12fbea0312ff3293b19d2e0e137e2aa53cd27e84))
+
+## [9.14.2](https://github.com/sweetalert2/sweetalert2/compare/v9.14.1...v9.14.2) (2020-06-06)
+
+
+### Bug Fixes
+
+* add bottom padding to container for iOS Safari ([#1993](https://github.com/sweetalert2/sweetalert2/issues/1993)) ([1378a78](https://github.com/sweetalert2/sweetalert2/commit/1378a78a472805407ab711f473d6e683420dea34))
+
+## [9.14.1](https://github.com/sweetalert2/sweetalert2/compare/v9.14.0...v9.14.1) (2020-06-06)
+
+
+### Bug Fixes
+
+* progressStepsDistance ([#1995](https://github.com/sweetalert2/sweetalert2/issues/1995)) ([1c61cfe](https://github.com/sweetalert2/sweetalert2/commit/1c61cfe38a7b3dedeacf87a7095c4ebdbe12b1ff))
+
 # [9.14.0](https://github.com/sweetalert2/sweetalert2/compare/v9.13.4...v9.14.0) (2020-05-30)
 
 

@@ -21,7 +21,7 @@ QUnit.test('default focus', (assert) => {
   SwalWithoutAnimation.fire({
     text: 'Modal with an input',
     input: 'text',
-    onOpen: () => {
+    didOpen: () => {
       assert.equal(document.activeElement, document.querySelector('.swal2-input'))
       done()
     }
@@ -54,6 +54,15 @@ QUnit.test('focusCancel', (assert) => {
   assert.equal(document.activeElement, Swal.getCancelButton())
 })
 
+QUnit.test('focusDeny', (assert) => {
+  Swal.fire({
+    text: 'Modal with Deny button focused',
+    showDenyButton: true,
+    focusDeny: true
+  })
+  assert.equal(document.activeElement, Swal.getDenyButton())
+})
+
 // TODO(@limonte): this test needs to be revisited
 // is passes even runs (2nd, 4th, 6th) and fails odd runs (1st, 3rd, 5th)
 // I suspect something is wrong with the testing environment as the same
@@ -74,7 +83,7 @@ QUnit.test('focusCancel', (assert) => {
 //       text: 'I should not touch previousActiveElement',
 //       toast: true,
 //       timer: 1,
-//       onAfterClose: () => {
+//       didClose: () => {
 //         buttonModal.focus()
 //         buttonModal.click()
 //       }
@@ -85,7 +94,7 @@ QUnit.test('focusCancel', (assert) => {
 //     SwalWithoutAnimation.fire({
 //       text: 'I should trap focus inside myself and restore previousActiveElement when I\'m closed',
 //       timer: 1,
-//       onAfterClose: () => {
+//       didClose: () => {
 //         assert.equal(document.activeElement, buttonModal)
 //         done()
 //       }

@@ -11,6 +11,17 @@ export const iOSfix = () => {
     document.body.style.top = `${offset * -1}px`
     dom.addClass(document.body, swalClasses.iosfix)
     lockBodyScroll()
+    addBottomPaddingForTallPopups() // #1948
+  }
+}
+
+const addBottomPaddingForTallPopups = () => {
+  const safari = !navigator.userAgent.match(/(CriOS|FxiOS|EdgiOS|YaBrowser|UCBrowser)/i)
+  if (safari) {
+    const bottomPanelHeight = 44
+    if (dom.getPopup().scrollHeight > window.innerHeight - bottomPanelHeight) {
+      dom.getContainer().style.paddingBottom = `${bottomPanelHeight}px`
+    }
   }
 }
 
@@ -18,7 +29,7 @@ const lockBodyScroll = () => { // #1246
   const container = dom.getContainer()
   let preventTouchMove
   container.ontouchstart = (e) => {
-    preventTouchMove = shouldPreventTouchMove(e.target)
+    preventTouchMove = shouldPreventTouchMove(e)
   }
   container.ontouchmove = (e) => {
     if (preventTouchMove) {
@@ -28,8 +39,12 @@ const lockBodyScroll = () => { // #1246
   }
 }
 
-const shouldPreventTouchMove = (target) => {
+const shouldPreventTouchMove = (event) => {
+  const target = event.target
   const container = dom.getContainer()
+  if (event.touches && event.touches.length && event.touches[0].touchType === 'stylus') { // #1786
+    return false
+  }
   if (target === container) {
     return true
   }

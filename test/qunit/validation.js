@@ -18,6 +18,9 @@ QUnit.test('input.checkValidity()', (assert) => {
   Swal.getInput().value = 'blah-blah'
   Swal.clickConfirm()
   setTimeout(() => {
+    assert.notOk(Swal.getConfirmButton().disabled)
+    assert.notOk(Swal.getDenyButton().disabled)
+    assert.notOk(Swal.getCancelButton().disabled)
     assert.ok(isVisible(Swal.getValidationMessage()))
     assert.equal(Swal.getValidationMessage().textContent, 'Invalid phone number')
 
@@ -27,9 +30,13 @@ QUnit.test('input.checkValidity()', (assert) => {
 })
 
 QUnit.test('default URL validator', (assert) => {
-  const done = assert.async(3)
+  const done = assert.async(4)
 
   defaultInputValidators.url('https://google.com').then(() => {
+    done()
+  })
+
+  defaultInputValidators.url('http://g.co').then(() => {
     done()
   })
 

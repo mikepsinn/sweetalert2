@@ -6,6 +6,23 @@ QUnit.test('inputValue number', (assert) => {
   assert.ok(Swal.getInput().value, '333')
 })
 
+QUnit.test('inputValue with object containing toPromise', (assert) => {
+  const done = assert.async()
+
+  Swal.fire({
+    input: 'text',
+    inputValue: {
+      toPromise: () => Promise.resolve('test')
+    },
+    didOpen: () => {
+      setTimeout(() => {
+        assert.equal(Swal.getInput().value, 'test')
+        done()
+      }, TIMEOUT)
+    }
+  })
+})
+
 QUnit.test('inputValue as a Promise', (assert) => {
   const _consoleWarn = console.warn
   const spy = sinon.spy(console, 'warn')
@@ -22,7 +39,7 @@ QUnit.test('inputValue as a Promise', (assert) => {
     SwalWithoutAnimation.fire({
       input,
       inputValue,
-      onOpen: () => {
+      didOpen: () => {
         setTimeout(() => {
           assert.equal(Swal.getInput().value, input === 'number' ? parseFloat(value) : value)
           if (inputTypes.length) {
@@ -50,7 +67,7 @@ QUnit.test('should throw console error when inputValue as a Promise rejects', (a
     inputValue: new Promise((resolve, reject) => {
       reject(new Error('input promise rejected'))
     }),
-    onOpen: () => {
+    didOpen: () => {
       setTimeout(() => {
         console.error = _consoleError
         assert.ok(spy.calledWith('SweetAlert2: Error in inputValue promise: Error: input promise rejected'))
